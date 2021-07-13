@@ -27,6 +27,7 @@ message("BUILD_TIMESTAMP = ${BUILD_TIMESTAMP}")
 find_package(catkin REQUIRED COMPONENTS
         roscpp
         roslib
+        tf
         tf2
         tf2_ros
         std_msgs
@@ -47,7 +48,7 @@ catkin_package(
 )
 
 message("PROJECT NAME = ${PROJECT_NAME}")
-add_executable(${PROJECT_NAME}  src/calibrator_listener.cpp)
+add_executable(${PROJECT_NAME}  src/calibrator_listener.cpp src/sensor.cpp)
 
 message("include = ${include}")
 message("catkin_INCLUDE_DIRS = ${catkin_INCLUDE_DIRS}")

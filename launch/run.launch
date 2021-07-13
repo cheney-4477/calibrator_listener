@@ -1,5 +1,23 @@
 <launch>
     <node pkg="calibrator_listener" type="calibrator_listener" name="calibrator_listener" output="screen">
-        <param name="file"  type="string" value="/home/momo/workspace/rbt_ws/src/robot_basic_tools/config/ext2.json"/>
+        <!-- 离线模式 true / false -->
+        <param name="offline"         type="bool"       value="true"/>
+
+        <!-- 获得外参的模式 : 0 = ros service request ; 1 = read from file -->
+        <param name="mode"            type="int"        value="0"/>
+
+        <!-- 模式 0 ： 从service获取外参，提供service的名称 -->
+        <param name="service_name"    type="string"     value="sensor_extrinsic" />
+
+        <!-- 模式 1 ： 从json获取外参，提供json的路径 -->
+        <param name="extrinsic_file"  type="string"     value="/home/momo/workspace/rbt_ws/src/robot_basic_tools/config/ext2.json" />
+
+        <!-- 提供导航参数的路径使节点得到所有的tf （测试用，将来节点会被告知所有的tf） -->
+        <param name="nav_param_file"  type="string"     value="/home/momo/workspace/rbt_ws/src/calibrator_listener/param/web_param.json" />
+
+        <!-- 节点维护的json文件的路径 -->
+        <param name="output_file"     type="string"     value="/home/momo/workspace/rbt_ws/src/calibrator_listener/param/output.json" />
+
+        <param name="tf_frequency"    type="double"     value="0.2" />
     </node>
 </launch>

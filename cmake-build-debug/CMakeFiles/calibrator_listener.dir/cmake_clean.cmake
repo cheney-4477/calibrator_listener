@@ -1,5 +1,6 @@
 file(REMOVE_RECURSE
   "CMakeFiles/calibrator_listener.dir/src/calibrator_listener.cpp.o"
+  "CMakeFiles/calibrator_listener.dir/src/sensor.cpp.o"
   "devel/lib/calibrator_listener/calibrator_listener"
   "devel/lib/calibrator_listener/calibrator_listener.pdb"
 )
