@@ -339,7 +339,7 @@ catkin_DIR:PATH=/opt/ros/melodic/share/catkin/cmake
 cpp_common_DIR:PATH=/opt/ros/melodic/share/cpp_common/cmake
 
 //The directory containing a CMake configuration file for dbrobot_msg.
-dbrobot_msg_DIR:PATH=/home/momo/workspace/rbt_ws/devel/share/dbrobot_msg/cmake
+dbrobot_msg_DIR:PATH=dbrobot_msg_DIR-NOTFOUND
 
 //The directory containing a CMake configuration file for gencpp.
 gencpp_DIR:PATH=/opt/ros/melodic/share/gencpp/cmake

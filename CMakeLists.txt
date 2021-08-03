@@ -34,11 +34,11 @@ find_package(catkin REQUIRED COMPONENTS
         message_filters
         sensor_msgs
         geometry_msgs
-        dbrobot_msg
         )
 
 #set(THIRDPARTY_INCLUDE_DIR "/home/moi/MOI_All_Projects/DBRobot_Core/thirdparty/include")
 set(THIRDPARTY_INCLUDE_DIR "/home/momo/work/lib/include")
+set(SERVICE_INCLUDE_DIR "/home/momo/workspace/rbt_ws/devel/include")
 
 catkin_package(
         #  INCLUDE_DIRS include
@@ -57,6 +57,7 @@ target_include_directories(${PROJECT_NAME} PRIVATE
         include
         ${catkin_INCLUDE_DIRS}
         ${THIRDPARTY_INCLUDE_DIR}
+        ${SERVICE_INCLUDE_DIR}
         )
 
 message("catkin_LIBRARIES = ${catkin_LIBRARIES}")

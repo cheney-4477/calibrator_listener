@@ -75,6 +75,18 @@ CMAKE_BINARY_DIR = /home/momo/workspace/rbt_ws/src/calibrator_listener/cmake-bui
 #=============================================================================
 # Targets provided globally by CMake.
 
+# Special rule for the target install/strip
+install/strip: preinstall
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Installing the project stripped..."
+	/home/momo/software/clion/bin/cmake/linux/bin/cmake -DCMAKE_INSTALL_DO_STRIP=1 -P cmake_install.cmake
+.PHONY : install/strip
+
+# Special rule for the target install/strip
+install/strip/fast: preinstall/fast
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Installing the project stripped..."
+	/home/momo/software/clion/bin/cmake/linux/bin/cmake -DCMAKE_INSTALL_DO_STRIP=1 -P cmake_install.cmake
+.PHONY : install/strip/fast
+
 # Special rule for the target install/local
 install/local: preinstall
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Installing only the local directory..."
@@ -97,18 +109,6 @@ edit_cache:
 edit_cache/fast: edit_cache
 
 .PHONY : edit_cache/fast
-
-# Special rule for the target install/strip
-install/strip: preinstall
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Installing the project stripped..."
-	/home/momo/software/clion/bin/cmake/linux/bin/cmake -DCMAKE_INSTALL_DO_STRIP=1 -P cmake_install.cmake
-.PHONY : install/strip
-
-# Special rule for the target install/strip
-install/strip/fast: preinstall/fast
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Installing the project stripped..."
-	/home/momo/software/clion/bin/cmake/linux/bin/cmake -DCMAKE_INSTALL_DO_STRIP=1 -P cmake_install.cmake
-.PHONY : install/strip/fast
 
 # Special rule for the target rebuild_cache
 rebuild_cache:
@@ -187,110 +187,6 @@ depend:
 .PHONY : depend
 
 #=============================================================================
-# Target rules for targets named nav_msgs_generate_messages_nodejs
-
-# Build rule for target.
-nav_msgs_generate_messages_nodejs: cmake_check_build_system
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 nav_msgs_generate_messages_nodejs
-.PHONY : nav_msgs_generate_messages_nodejs
-
-# fast build rule for target.
-nav_msgs_generate_messages_nodejs/fast:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/nav_msgs_generate_messages_nodejs.dir/build.make CMakeFiles/nav_msgs_generate_messages_nodejs.dir/build
-.PHONY : nav_msgs_generate_messages_nodejs/fast
-
-#=============================================================================
-# Target rules for targets named nav_msgs_generate_messages_lisp
-
-# Build rule for target.
-nav_msgs_generate_messages_lisp: cmake_check_build_system
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 nav_msgs_generate_messages_lisp
-.PHONY : nav_msgs_generate_messages_lisp
-
-# fast build rule for target.
-nav_msgs_generate_messages_lisp/fast:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/nav_msgs_generate_messages_lisp.dir/build.make CMakeFiles/nav_msgs_generate_messages_lisp.dir/build
-.PHONY : nav_msgs_generate_messages_lisp/fast
-
-#=============================================================================
-# Target rules for targets named nav_msgs_generate_messages_eus
-
-# Build rule for target.
-nav_msgs_generate_messages_eus: cmake_check_build_system
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 nav_msgs_generate_messages_eus
-.PHONY : nav_msgs_generate_messages_eus
-
-# fast build rule for target.
-nav_msgs_generate_messages_eus/fast:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/nav_msgs_generate_messages_eus.dir/build.make CMakeFiles/nav_msgs_generate_messages_eus.dir/build
-.PHONY : nav_msgs_generate_messages_eus/fast
-
-#=============================================================================
-# Target rules for targets named nav_msgs_generate_messages_cpp
-
-# Build rule for target.
-nav_msgs_generate_messages_cpp: cmake_check_build_system
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 nav_msgs_generate_messages_cpp
-.PHONY : nav_msgs_generate_messages_cpp
-
-# fast build rule for target.
-nav_msgs_generate_messages_cpp/fast:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/nav_msgs_generate_messages_cpp.dir/build.make CMakeFiles/nav_msgs_generate_messages_cpp.dir/build
-.PHONY : nav_msgs_generate_messages_cpp/fast
-
-#=============================================================================
-# Target rules for targets named dbrobot_msg_generate_messages_nodejs
-
-# Build rule for target.
-dbrobot_msg_generate_messages_nodejs: cmake_check_build_system
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 dbrobot_msg_generate_messages_nodejs
-.PHONY : dbrobot_msg_generate_messages_nodejs
-
-# fast build rule for target.
-dbrobot_msg_generate_messages_nodejs/fast:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/dbrobot_msg_generate_messages_nodejs.dir/build.make CMakeFiles/dbrobot_msg_generate_messages_nodejs.dir/build
-.PHONY : dbrobot_msg_generate_messages_nodejs/fast
-
-#=============================================================================
-# Target rules for targets named dbrobot_msg_generate_messages_lisp
-
-# Build rule for target.
-dbrobot_msg_generate_messages_lisp: cmake_check_build_system
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 dbrobot_msg_generate_messages_lisp
-.PHONY : dbrobot_msg_generate_messages_lisp
-
-# fast build rule for target.
-dbrobot_msg_generate_messages_lisp/fast:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/dbrobot_msg_generate_messages_lisp.dir/build.make CMakeFiles/dbrobot_msg_generate_messages_lisp.dir/build
-.PHONY : dbrobot_msg_generate_messages_lisp/fast
-
-#=============================================================================
-# Target rules for targets named dbrobot_msg_generate_messages_eus
-
-# Build rule for target.
-dbrobot_msg_generate_messages_eus: cmake_check_build_system
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 dbrobot_msg_generate_messages_eus
-.PHONY : dbrobot_msg_generate_messages_eus
-
-# fast build rule for target.
-dbrobot_msg_generate_messages_eus/fast:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/dbrobot_msg_generate_messages_eus.dir/build.make CMakeFiles/dbrobot_msg_generate_messages_eus.dir/build
-.PHONY : dbrobot_msg_generate_messages_eus/fast
-
-#=============================================================================
-# Target rules for targets named dbrobot_msg_generate_messages_cpp
-
-# Build rule for target.
-dbrobot_msg_generate_messages_cpp: cmake_check_build_system
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 dbrobot_msg_generate_messages_cpp
-.PHONY : dbrobot_msg_generate_messages_cpp
-
-# fast build rule for target.
-dbrobot_msg_generate_messages_cpp/fast:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/dbrobot_msg_generate_messages_cpp.dir/build.make CMakeFiles/dbrobot_msg_generate_messages_cpp.dir/build
-.PHONY : dbrobot_msg_generate_messages_cpp/fast
-
-#=============================================================================
 # Target rules for targets named tf2_msgs_generate_messages_nodejs
 
 # Build rule for target.
@@ -367,19 +263,6 @@ roscpp_generate_messages_lisp: cmake_check_build_system
 roscpp_generate_messages_lisp/fast:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/roscpp_generate_messages_lisp.dir/build.make CMakeFiles/roscpp_generate_messages_lisp.dir/build
 .PHONY : roscpp_generate_messages_lisp/fast
-
-#=============================================================================
-# Target rules for targets named nav_msgs_generate_messages_py
-
-# Build rule for target.
-nav_msgs_generate_messages_py: cmake_check_build_system
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 nav_msgs_generate_messages_py
-.PHONY : nav_msgs_generate_messages_py
-
-# fast build rule for target.
-nav_msgs_generate_messages_py/fast:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/nav_msgs_generate_messages_py.dir/build.make CMakeFiles/nav_msgs_generate_messages_py.dir/build
-.PHONY : nav_msgs_generate_messages_py/fast
 
 #=============================================================================
 # Target rules for targets named std_msgs_generate_messages_py
@@ -889,19 +772,6 @@ actionlib_generate_messages_lisp/fast:
 .PHONY : actionlib_generate_messages_lisp/fast
 
 #=============================================================================
-# Target rules for targets named dbrobot_msg_generate_messages_py
-
-# Build rule for target.
-dbrobot_msg_generate_messages_py: cmake_check_build_system
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 dbrobot_msg_generate_messages_py
-.PHONY : dbrobot_msg_generate_messages_py
-
-# fast build rule for target.
-dbrobot_msg_generate_messages_py/fast:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/dbrobot_msg_generate_messages_py.dir/build.make CMakeFiles/dbrobot_msg_generate_messages_py.dir/build
-.PHONY : dbrobot_msg_generate_messages_py/fast
-
-#=============================================================================
 # Target rules for targets named actionlib_msgs_generate_messages_cpp
 
 # Build rule for target.
@@ -1109,11 +979,6 @@ help:
 	@echo "... actionlib_msgs_generate_messages_nodejs"
 	@echo "... actionlib_msgs_generate_messages_py"
 	@echo "... clean_test_results"
-	@echo "... dbrobot_msg_generate_messages_cpp"
-	@echo "... dbrobot_msg_generate_messages_eus"
-	@echo "... dbrobot_msg_generate_messages_lisp"
-	@echo "... dbrobot_msg_generate_messages_nodejs"
-	@echo "... dbrobot_msg_generate_messages_py"
 	@echo "... download_extra_data"
 	@echo "... doxygen"
 	@echo "... geometry_msgs_generate_messages_cpp"
@@ -1121,11 +986,6 @@ help:
 	@echo "... geometry_msgs_generate_messages_lisp"
 	@echo "... geometry_msgs_generate_messages_nodejs"
 	@echo "... geometry_msgs_generate_messages_py"
-	@echo "... nav_msgs_generate_messages_cpp"
-	@echo "... nav_msgs_generate_messages_eus"
-	@echo "... nav_msgs_generate_messages_lisp"
-	@echo "... nav_msgs_generate_messages_nodejs"
-	@echo "... nav_msgs_generate_messages_py"
 	@echo "... roscpp_generate_messages_cpp"
 	@echo "... roscpp_generate_messages_eus"
 	@echo "... roscpp_generate_messages_lisp"

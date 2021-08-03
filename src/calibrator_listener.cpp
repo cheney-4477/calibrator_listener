@@ -1,43 +1,5 @@
-#include <algorithm>
-#include <thread>
-
-#include <ros/ros.h>
-#include <tf2/LinearMath/Quaternion.h>
-#include <geometry_msgs/TransformStamped.h>
-
 #include "calibrator_listener/calibrator_listener.hpp"
 #include "calibrator_listener/calibrator_print.hpp"
-
-void CalibratorListener::publish_extrinsic() {
-
-  std::lock_guard<std::mutex> lock(mtx_);
-
-  ext_publisher_ = nh_.advertise<geometry_msgs::TransformStamped>("extrinsic", 1);
-  ros::Rate loop_rate(1);
-  geometry_msgs::TransformStamped ext_msg;
-
-  ext_msg.header.stamp = ros::Time::now();
-  ext_msg.header.frame_id = "from";
-  ext_msg.child_frame_id = "to";
-
-  ext_msg.transform.translation.x = raw_transform_[0];
-  ext_msg.transform.translation.y = raw_transform_[1];
-  ext_msg.transform.translation.z = raw_transform_[2];
-
-  tf2::Quaternion q;
-  q.setRPY(raw_transform_[3], raw_transform_[4], raw_transform_[5]);
-
-  ext_msg.transform.rotation.x = q.x();
-  ext_msg.transform.rotation.y = q.y();
-  ext_msg.transform.rotation.z = q.z();
-  ext_msg.transform.rotation.w = q.w();
-
-  while(ros::ok()) {
-    ext_publisher_.publish(ext_msg);
-    loop_rate.sleep();
-  }
-}
-
 
 bool CalibratorListener::read_extrinsic(const std::string& path){
   std::ifstream ifs(path, std::ios::in);
@@ -109,7 +71,7 @@ bool CalibratorListener::read_params(){
 
 
 void CalibratorListener::tf_static_callback(const tf2_msgs::TFMessage& msg) {
-  debug_printf("----- CalibratorListener::tf_static_callback() ..... calling\n");
+//  debug_printf("----- CalibratorListener::tf_static_callback() ..... calling\n");
 
   geometry_msgs::TransformStamped current_tf;
   current_tf.header = msg.transforms[0].header;
@@ -135,47 +97,50 @@ void CalibratorListener::tf_static_callback(const tf2_msgs::TFMessage& msg) {
     }
   }
 
-  debug_printf("----- CalibratorListener::tf_static_callback() ..... %lu transforms being captured so far.\n", all_transforms_.size());
-  debug_printf("----- CalibratorListener::tf_static_callback() ..... ALL FRAMES -----\n");
-  int count = 0;
-  for (auto& elem : all_frames_vector_) {
-    debug_printf("----- ----- %d : %s\n", count, elem.c_str());
-    count++;
-  }
-  debug_printf("----- CalibratorListener::tf_static_callback() ..... MAJOR FRAMES -----\n");
-  count = 0;
-  for (auto& elem : major_frames_) {
-    debug_printf("----- ----- %d : %s\n", count, elem.c_str());
-    count++;
-  }
+//  debug_printf("----- CalibratorListener::tf_static_callback() ..... %lu transforms being captured so far.\n", all_transforms_.size());
+//  debug_printf("----- CalibratorListener::tf_static_callback() ..... ALL FRAMES -----\n");
+//  int count = 0;
+//  for (auto& elem : all_frames_vector_) {
+//    debug_printf("----- ----- %d : %s\n", count, elem.c_str());
+//    count++;
+//  }
+//  debug_printf("----- CalibratorListener::tf_static_callback() ..... MAJOR FRAMES -----\n");
+//  count = 0;
+//  for (auto& elem : major_frames_) {
+//    debug_printf("----- ----- %d : %s\n", count, elem.c_str());
+//    count++;
+//  }
 }
 
 
 bool CalibratorListener::extrinsic_callback(robot_basic_tools::Extrinsic::Request& req, robot_basic_tools::Extrinsic::Response& res) {
-  debug_printf("----- CalibratorListener::extrinsic_callback() ..... calling\n");
+  debug_printf("\n----- CalibratorListener::extrinsic_callback() ..... calling\n");
 
   parent_true_ = req.tfs.header.frame_id;
-  parent_true_naked_ = std::string(parent_true_, 1);
   child_true_ = req.tfs.child_frame_id;
+  parent_true_naked_ = std::string(parent_true_, 1);
   child_true_naked_ = std::string(child_true_, 1);
   debug_printf("----- CalibratorListener::extrinsic_callback() ..... parent_true_ = %s \t child_true_ = %s\n", parent_true_.c_str(), child_true_.c_str());
-  debug_printf("----- CalibratorListener::extrinsic_callback() ..... parent_true_naked_ = %s \t child_true_naked_ = %s\n", parent_true_naked_.c_str(), child_true_naked_.c_str());
+//  debug_printf("----- CalibratorListener::extrinsic_callback() ..... parent_true_naked_ = %s \t child_true_naked_ = %s\n", parent_true_naked_.c_str(), child_true_naked_.c_str());
 
   parent_selected_ = req.parent_selected;
-  parent_selected_naked_ = std::string(parent_selected_, 1);
   child_selected_ = req.child_selected;
+  parent_selected_naked_ = std::string(parent_selected_, 1);
   child_selected_naked_ = std::string(child_selected_, 1);
   debug_printf("----- CalibratorListener::extrinsic_callback() ..... parent_selected_ = %s \t child_selected_ = %s\n", parent_selected_.c_str(), child_selected_.c_str());
-  debug_printf("----- CalibratorListener::extrinsic_callback() ..... parent_selected_naked_ = %s \t child_selected_naked_ = %s\n", parent_selected_naked_.c_str(), child_selected_naked_.c_str());
+//  debug_printf("----- CalibratorListener::extrinsic_callback() ..... parent_selected_naked_ = %s \t child_selected_naked_ = %s\n", parent_selected_naked_.c_str(), child_selected_naked_.c_str());
 
   tf::StampedTransform tmp_stf;
   tf::transformStampedMsgToTF(req.tfs, tmp_stf);
   transform_pt2ct_ = tf::Transform(tmp_stf.getRotation(), tmp_stf.getOrigin());
+
+  double r, p, y;
+  tf::Matrix3x3(transform_pt2ct_.getRotation()).getRPY(r, p, y);
   debug_printf("----- CalibratorListener::extrinsic_callback() ..... transform_pt2ct_.q: [%f, %f, %f, %f]\n",
                transform_pt2ct_.getRotation().x(), transform_pt2ct_.getRotation().y(), transform_pt2ct_.getRotation().z(), transform_pt2ct_.getRotation().w());
+  debug_printf("----- CalibratorListener::extrinsic_callback() ..... roll = %f, pitch = %f, yaw = %f\n", r, p, y);
   debug_printf("----- CalibratorListener::extrinsic_callback() ..... transform_pt2ct_.t: [%f, %f, %f]\n",
                transform_pt2ct_.getOrigin().x(), transform_pt2ct_.getOrigin().y(), transform_pt2ct_.getOrigin().z());
-
 
   if (!update_nav_params()) {
     ROS_ERROR("extrinsic_callback() : Error updating received extrinsic into navigation params");
@@ -186,7 +151,7 @@ bool CalibratorListener::extrinsic_callback(robot_basic_tools::Extrinsic::Reques
     ROS_ERROR("extrinsic_callback() : Error writing updated parameters into json format");
     return false;
   }
-
+  debug_printf("\n");
   return true;
 }
 
@@ -202,22 +167,25 @@ bool CalibratorListener::update_nav_params() {
     }
   }
   if (!found_cs2base) {
-    ROS_ERROR("Unable to find %s in navigation platform parameters", child_selected_.c_str());
+    ROS_ERROR("Unable to find child selected (%s) in navigation platform parameters", child_selected_.c_str());
     return false;
   }
 
   if (std::strcmp(parent_true_.c_str(), parent_selected_.c_str()) != 0) {
     debug_printf("----- CalibratorListener::update_nav_params() ..... Looking for intermediate transform from %s to %s\n", parent_selected_naked_.c_str(), parent_true_naked_.c_str());
-
     tf2_ros::Buffer tmp_buff;
     tf2_ros::TransformListener tfl(tmp_buff);
     tf::StampedTransform tmp_stf;
     try {
       tf::transformStampedMsgToTF(tmp_buff.lookupTransform(parent_selected_naked_, parent_true_naked_, ros::Time(0), ros::Duration(1.0)), tmp_stf);
       transform_ps2pt_ = tf::Transform(tmp_stf.getRotation(), tmp_stf.getOrigin());
+//      transform_ps2pt_ = tf::Transform(tf::createQuaternionFromRPY(0, 0, 0), tmp_stf.getOrigin());
+      double r, p, y;
+      tf::Matrix3x3(transform_ps2pt_.getRotation()).getRPY(r, p, y);
       debug_printf("Found intermediate transform 1 !!\n");
       debug_printf("parent: %s\n", tmp_stf.frame_id_.c_str());
       debug_printf("child : %s\n", tmp_stf.child_frame_id_.c_str());
+      debug_printf("roll = %f, pitch = %f, yaw = %f\n", r, p, y);
       debug_printf("q: [%f, %f, %f, %f]\n", transform_ps2pt_.getRotation().x(), transform_ps2pt_.getRotation().y(), transform_ps2pt_.getRotation().z(), transform_ps2pt_.getRotation().w());
       debug_printf("t: [%f, %f, %f]\n", transform_ps2pt_.getOrigin().x(), transform_ps2pt_.getOrigin().y(), transform_ps2pt_.getOrigin().z());
     } catch (tf2::TransformException& e) {
@@ -225,21 +193,24 @@ bool CalibratorListener::update_nav_params() {
       ros::Duration(1.0).sleep();
     }
   } else {
-    transform_ps2pt_ = tf::Transform(tf::Quaternion(0, 0, 0, 0), tf::Vector3(0, 0, 0));
+    transform_ps2pt_ = tf::Transform(tf::createQuaternionFromRPY(0, 0, 0), tf::Vector3(0, 0, 0));
   }
 
   if (std::strcmp(child_true_.c_str(), child_selected_.c_str()) != 0) {
     debug_printf("----- CalibratorListener::update_nav_params() ..... Looking for intermediate transform from %s to %s\n", child_true_naked_.c_str(), child_selected_naked_.c_str());
-
     tf2_ros::Buffer tmp_buff;
     tf2_ros::TransformListener tfl(tmp_buff);
     tf::StampedTransform tmp_stf;
     try {
       tf::transformStampedMsgToTF(tmp_buff.lookupTransform(child_true_naked_, child_selected_naked_, ros::Time(0), ros::Duration(1.0)), tmp_stf);
       transform_ct2cs_ = tf::Transform(tmp_stf.getRotation(), tmp_stf.getOrigin());
+//      transform_ct2cs_ = tf::Transform(tf::createQuaternionFromRPY(0, 0, 0), tmp_stf.getOrigin());
+      double r, p, y;
+      tf::Matrix3x3(transform_ps2pt_.getRotation()).getRPY(r, p, y);
       debug_printf("Found intermediate transform 2 !!\n");
       debug_printf("parent: %s\n", tmp_stf.frame_id_.c_str());
       debug_printf("child : %s\n", tmp_stf.child_frame_id_.c_str());
+      debug_printf("roll = %f, pitch = %f, yaw = %f\n", r, p, y);
       debug_printf("q: [%f, %f, %f, %f]\n", transform_ct2cs_.getRotation().x(), transform_ct2cs_.getRotation().y(), transform_ct2cs_.getRotation().z(), transform_ct2cs_.getRotation().w());
       debug_printf("t: [%f, %f, %f]\n", transform_ct2cs_.getOrigin().x(), transform_ct2cs_.getOrigin().y(), transform_ct2cs_.getOrigin().z());
     } catch (tf2::TransformException& e) {
@@ -247,13 +218,13 @@ bool CalibratorListener::update_nav_params() {
       ros::Duration(1.0).sleep();
     }
   } else {
-    transform_ct2cs_ = tf::Transform(tf::Quaternion(0, 0, 0, 0), tf::Vector3(0, 0, 0));
+    transform_ct2cs_ = tf::Transform(tf::createQuaternionFromRPY(0, 0, 0), tf::Vector3(0, 0, 0));
   }
 
-  tf::Transform transform_ps2ct = transform_ps2pt_ * transform_pt2ct_;
-  tf::Transform transform_ps2cs = transform_ps2ct * transform_ct2cs_;
-  transform_ps2base_ = transform_ps2cs * transform_cs2base_;
-  debug_printf("----- CalibratorListener::update_nav_params() ..... calculated Transform:\n");
+  tf::Transform transform_ct2base = transform_cs2base_ * transform_ct2cs_.inverse();
+  tf::Transform transform_pt2base = transform_ct2base * transform_pt2ct_;
+  transform_ps2base_ = transform_pt2base * transform_ps2pt_.inverse();
+  debug_printf("----- CalibratorListener::update_nav_params() ..... calculated Transform as below ----- -----\n");
   debug_printf("q: [%f, %f, %f, %f]\n", transform_ps2base_.getRotation().x(), transform_ps2base_.getRotation().y(), transform_ps2base_.getRotation().z(), transform_ps2base_.getRotation().w());
   debug_printf("t: [%f, %f, %f]\n", transform_ps2base_.getOrigin().x(), transform_ps2base_.getOrigin().y(), transform_ps2base_.getOrigin().z());
 
@@ -266,7 +237,7 @@ bool CalibratorListener::update_nav_params() {
     }
   }
   if (!found_ps2base) {
-    ROS_ERROR("Unable to find %s in navigation platform parameters", parent_selected_.c_str());
+    ROS_ERROR("Unable to find parent selected (%s) in navigation platform parameters", parent_selected_.c_str());
     return false;
   }
 
@@ -276,23 +247,22 @@ bool CalibratorListener::update_nav_params() {
 
 bool CalibratorListener::read_nav_params() {
   std::ifstream ifs(nav_filepath_, std::ios::in);
-  nlohmann::json js_whole;
 
   if (ifs.is_open()) {
-    ROS_INFO("Loading nav_params from file success");
-    ifs >> js_whole;
+    ROS_INFO("----- CalibratorListener::read_nav_params() ..... Loading nav_params from file success");
+    ifs >> js_input_whole_;
     ifs.close();
   } else {
-    ROS_ERROR("Failed loading nav_params");
+    ROS_ERROR("----- CalibratorListener::read_nav_params() ..... Failed loading nav_params");
     return false;
   }
 
-  if (!js_whole.contains("sensorsettings")) {
+  if (!js_input_whole_.contains("sensorsettings")) {
     ROS_ERROR("----- CalibratorListener::read_nav_params() ..... Possibly wrong json file for nav params, no sensorsettings");
     return false;
   }
 
-  for (const auto& data : js_whole["sensorsettings"].items()) {
+  for (const auto& data : js_input_whole_["sensorsettings"].items()) {
     std::string current_frame_id;
     std::string current_type = data.value().at("type");
     std::string current_id= static_cast<std::string>(data.value().at("id").dump());
@@ -325,25 +295,22 @@ bool CalibratorListener::read_nav_params() {
     item.print_sensor();
   }
 
-  if (!js_whole.contains("robotsettings")) {
+  if (!js_input_whole_.contains("robotsettings")) {
     ROS_ERROR("----- CalibratorListener::read_nav_params() ..... Possibly wrong json file for nav params, no robotsettings");
     return false;
   }
 
-  for (const auto& data : js_whole["robotsettings"].items()) {
-    js_robot_.emplace_back(data);
+  for (const auto& data : js_input_whole_["robotsettings"].items()) {
+    js_robot_[data.key()] = data.value();
   }
-//  output_whole_["robotsettings"] = js_robot;
-//  output_whole_ = {{"robotsettings", js_robot}};
 
   return true;
 }
 
 
 bool CalibratorListener::write_nav_params() {
-  debug_printf("----- CalibratorListener::write_json() ..... calling\n");
+  debug_printf("----- CalibratorListener::write_nav_params() ..... calling\n");
 
-  std::vector<nlohmann::json> js_nav;
   for (const auto& data : nav_params_) {
     nlohmann::json js_pos;
     js_pos["rx"] = data.pos_[0];
@@ -358,31 +325,36 @@ bool CalibratorListener::write_nav_params() {
 //    js_pos["tx"] = round(data.pos_[3] * 100) / 100;
 //    js_pos["ty"] = round(data.pos_[4] * 100) / 100;
 //    js_pos["tz"] = round(data.pos_[5] * 100) / 100;
-    nlohmann::json js = {{"type", data.type_},
-                         {"id", data.id_},
-                         {"pos", js_pos}};
-    js_nav.push_back(js);
+    int id_num;
+    nlohmann::json js;
+    if (regex_match(data.id_, reg_num_pattern_)) {
+      id_num = static_cast<int>(std::strtol(data.id_.c_str(), nullptr, 10));
+      js = {{"type", data.type_}, {"id", id_num}, {"pos", js_pos}};
+    } else {
+      js = {{"type", data.type_}, {"id", data.id_}, {"pos", js_pos}};
+    }
+    js_nav_.push_back(js);
   }
-  output_whole_["robotsettings"] = js_robot_;
-  output_whole_["sensorsettings"] = js_nav;
+  js_output_whole_["robotsettings"] = js_robot_;
+  js_output_whole_["sensorsettings"] = js_nav_;
 
   std::ofstream ofs(output_filepath_, std::ios::out);
   if (ofs.is_open()) {
-    std::cout << "save data to " << output_filepath_.c_str() << std::endl;
-    ofs << std::setw(2) << output_whole_ << std::endl;
+    ROS_INFO("----- CalibratorListener::write_nav_params() ..... Saving data to %s", output_filepath_.c_str());
+    ofs << std::setw(4) << js_output_whole_ << std::endl;
     ofs.close();
     return true;
   } else {
-    std::cout << "cannot create a file at " << output_filepath_.c_str() << std::endl;
+    ROS_ERROR("----- CalibratorListener::write_nav_params() ..... Cannot create a file at %s", output_filepath_.c_str());
     return false;
   }
 }
 
 
 void CalibratorListener::broadcast_tf() {
-  ros::Rate rate(0.2);
+  ros::Rate rate(tf_freq_);
   while (nh_.ok()){
-    debug_printf("----- CalibratorListener::broadcast_tf() ..... broadcasting\n");
+//    debug_printf("----- CalibratorListener::broadcast_tf() ..... broadcasting\n");
     for (const auto& iter : nav_params_) {
       geometry_msgs::TransformStamped msg;
       tf::transformStampedTFToMsg(tf::StampedTransform(iter.transform_sensor2base_, ros::Time::now(), "/base_link", "/" + iter.frame_), msg);
@@ -508,49 +480,78 @@ int main(int argc, char** argv){
 //      }
 //    }
 // Need to find intermediate transforms between true and selected frames only when they are different, otherwise use selected
-////  if (std::strcmp(parent_frame_.c_str(), selected_parent_frame_.c_str()) != 0) {
-////    debug_printf("----- CalibratorListener::extrinsic_callback() ..... Looking for intermediate transform from %s to %s\n", parent_frame_.c_str(), selected_parent_frame_.c_str());
-////
-////    std::string clean_true = parent_frame_.erase(parent_frame_.find('/'), 1);
-////    std::string clean_selected = selected_parent_frame_.erase(selected_parent_frame_.find('/'), 1);
-////    debug_printf("----- CalibratorListener::extrinsic_callback() ..... from %s to %s\n", clean_true.c_str(), clean_selected.c_str());
-////
-////    tf2_ros::Buffer tmp_buff;
-////    tf2_ros::TransformListener tfl(tmp_buff);
-////    ros::Time time = ros::Time(1.0);
-////    ros::Duration timeout(1.0);
-////    geometry_msgs::TransformStamped tmp_tfs;
-////
-////    try {
-////      tmp_tfs = tmp_buff.lookupTransform(clean_selected, clean_true, time, timeout);
-////      debug_printf("Found intermediate transform 1 !!\n");
-////      debug_printf("source frame = %s\n", tmp_tfs.header.frame_id.c_str());
-////      debug_printf("target frame = %s\n", tmp_tfs.child_frame_id.c_str());
-////      debug_printf("rotation = [%f, %f, %f, %f]\n", tmp_tfs.transform.rotation.x, tmp_tfs.transform.rotation.y, tmp_tfs.transform.rotation.z, tmp_tfs.transform.rotation.w); /      debug_printf("translation = [%f, %f, %f]\n", tmp_tfs.transform.translation.x, tmp_tfs.transform.translation.y, tmp_tfs.transform.translation.z);
-////
-////      Eigen::Matrix4d transform_sp_tp = Eigen::Matrix4d::Zero();
-////      transform_sp_tp(3, 3) = 1;
-////
-////    } catch (tf2::TransformException& e) {
-////      ROS_ERROR("%s", e.what());
-////      ros::Duration(1.0).sleep();
-////    }
-////  }
-////  // Need to find intermediate transforms between true and selected frames only when they are different, otherwise use selected /  if (std::strcmp(child_frame_.c_str(), selected_child_frame_.c_str()) != 0) { /    debug_printf("----- CalibratorListener::extrinsic_callback() ..... Looking for intermediate transform between %s and %s\n", child_frame_.c_str(), selected_child_frame_.c_str());
-////
-////    std::string clean_true = child_frame_.erase(child_frame_.find('/'), 1);
-////    std::string clean_selected = selected_child_frame_.erase(selected_child_frame_.find('/'), 1);
-////    debug_printf("----- CalibratorListener::extrinsic_callback() ..... clean_true = %s, clean_selected = %s\n", clean_true.c_str(), clean_selected.c_str());
-////
-////    tf2_ros::Buffer tmp_buff;
-////    tf2_ros::TransformListener tfl(tmp_buff);
-////    ros::Time time = ros::Time(1.0);
-////    ros::Duration timeout(1.0);
-////    geometry_msgs::TransformStamped tmp_tfs;
-////    try {
-////      tmp_tfs = tmp_buff.lookupTransform(clean_selected, clean_true, time, timeout);
-////      debug_printf("Found intermediate transform 2 !!\n");
-////      debug_printf("source frame = %s\n", tmp_tfs.header.frame_id.c_str());
-////      debug_printf("target frame = %s\n", tmp_tfs.child_frame_id.c_str());
-////      debug_printf("rotation = [%f, %f, %f, %f]\n", tmp_tfs.transform.rotation.x, tmp_tfs.transform.rotation.y, tmp_tfs.transform.rotation.z, tmp_tfs.transform.rotation.w); /      debug_printf("translation = [%f, %f, %f]\n", tmp_tfs.transform.translation.x, tmp_tfs.transform.translation.y, tmp_tfs.transform.translation.z); /    } catch (tf2::TransformException& e) { /      ROS_ERROR("%s", e.what()); /      ros::Duration(1.0).sleep(); /    } /  }
-////
+//  if (std::strcmp(parent_frame_.c_str(), selected_parent_frame_.c_str()) != 0) {
+//    debug_printf("----- CalibratorListener::extrinsic_callback() ..... Looking for intermediate transform from %s to %s\n", parent_frame_.c_str(), selected_parent_frame_.c_str());
+//
+//    std::string clean_true = parent_frame_.erase(parent_frame_.find('/'), 1);
+//    std::string clean_selected = selected_parent_frame_.erase(selected_parent_frame_.find('/'), 1);
+//    debug_printf("----- CalibratorListener::extrinsic_callback() ..... from %s to %s\n", clean_true.c_str(), clean_selected.c_str());
+//
+//    tf2_ros::Buffer tmp_buff;
+//    tf2_ros::TransformListener tfl(tmp_buff);
+//    ros::Time time = ros::Time(1.0);
+//    ros::Duration timeout(1.0);
+//    geometry_msgs::TransformStamped tmp_tfs;
+//
+//    try {
+//      tmp_tfs = tmp_buff.lookupTransform(clean_selected, clean_true, time, timeout);
+//      debug_printf("Found intermediate transform 1 !!\n");
+//      debug_printf("source frame = %s\n", tmp_tfs.header.frame_id.c_str());
+//      debug_printf("target frame = %s\n", tmp_tfs.child_frame_id.c_str());
+//      debug_printf("rotation = [%f, %f, %f, %f]\n", tmp_tfs.transform.rotation.x, tmp_tfs.transform.rotation.y, tmp_tfs.transform.rotation.z, tmp_tfs.transform.rotation.w); /      debug_printf("translation = [%f, %f, %f]\n", tmp_tfs.transform.translation.x, tmp_tfs.transform.translation.y, tmp_tfs.transform.translation.z);
+//
+//      Eigen::Matrix4d transform_sp_tp = Eigen::Matrix4d::Zero();
+//      transform_sp_tp(3, 3) = 1;
+//
+//    } catch (tf2::TransformException& e) {
+//      ROS_ERROR("%s", e.what());
+//      ros::Duration(1.0).sleep();
+//    }
+//  }
+//  // Need to find intermediate transforms between true and selected frames only when they are different, otherwise use selected /  if (std::strcmp(child_frame_.c_str(), selected_child_frame_.c_str()) != 0) { /    debug_printf("----- CalibratorListener::extrinsic_callback() ..... Looking for intermediate transform between %s and %s\n", child_frame_.c_str(), selected_child_frame_.c_str());
+//
+//    std::string clean_true = child_frame_.erase(child_frame_.find('/'), 1);
+//    std::string clean_selected = selected_child_frame_.erase(selected_child_frame_.find('/'), 1);
+//    debug_printf("----- CalibratorListener::extrinsic_callback() ..... clean_true = %s, clean_selected = %s\n", clean_true.c_str(), clean_selected.c_str());
+//
+//    tf2_ros::Buffer tmp_buff;
+//    tf2_ros::TransformListener tfl(tmp_buff);
+//    ros::Time time = ros::Time(1.0);
+//    ros::Duration timeout(1.0);
+//    geometry_msgs::TransformStamped tmp_tfs;
+//    try {
+//      tmp_tfs = tmp_buff.lookupTransform(clean_selected, clean_true, time, timeout);
+//      debug_printf("Found intermediate transform 2 !!\n");
+//      debug_printf("source frame = %s\n", tmp_tfs.header.frame_id.c_str());
+//      debug_printf("target frame = %s\n", tmp_tfs.child_frame_id.c_str());
+//      debug_printf("rotation = [%f, %f, %f, %f]\n", tmp_tfs.transform.rotation.x, tmp_tfs.transform.rotation.y, tmp_tfs.transform.rotation.z, tmp_tfs.transform.rotation.w); /      debug_printf("translation = [%f, %f, %f]\n", tmp_tfs.transform.translation.x, tmp_tfs.transform.translation.y, tmp_tfs.transform.translation.z); /    } catch (tf2::TransformException& e) { /      ROS_ERROR("%s", e.what()); /      ros::Duration(1.0).sleep(); /    } /  }
+//
+// void CalibratorListener::publish_extrinsic() {
+//
+//  std::lock_guard<std::mutex> lock(mtx_);
+//
+//  ext_publisher_ = nh_.advertise<geometry_msgs::TransformStamped>("extrinsic", 1);
+//  ros::Rate loop_rate(1);
+//  geometry_msgs::TransformStamped ext_msg;
+//
+//  ext_msg.header.stamp = ros::Time::now();
+//  ext_msg.header.frame_id = "from";
+//  ext_msg.child_frame_id = "to";
+//
+//  ext_msg.transform.translation.x = raw_transform_[0];
+//  ext_msg.transform.translation.y = raw_transform_[1];
+//  ext_msg.transform.translation.z = raw_transform_[2];
+//
+//  tf2::Quaternion q;
+//  q.setRPY(raw_transform_[3], raw_transform_[4], raw_transform_[5]);
+//
+//  ext_msg.transform.rotation.x = q.x();
+//  ext_msg.transform.rotation.y = q.y();
+//  ext_msg.transform.rotation.z = q.z();
+//  ext_msg.transform.rotation.w = q.w();
+//
+//  while(ros::ok()) {
+//    ext_publisher_.publish(ext_msg);
+//    loop_rate.sleep();
+//  }
+//}

@@ -18,6 +18,7 @@
         <!-- 节点维护的json文件的路径 -->
         <param name="output_file"     type="string"     value="/home/momo/workspace/rbt_ws/src/calibrator_listener/param/output.json" />
 
-        <param name="tf_frequency"    type="double"     value="0.2" />
+        <!-- 设置tf发布频率（单位：赫兹）-->
+        <param name="tf_frequency"    type="double"     value="10" />
     </node>
 </launch>

@@ -1,10 +1,8 @@
 #include "calibrator_listener/sensor.hpp"
 
 void Sensor::print_sensor() const {
-  printf("----- ----- type=%s \t id=%s \t frame=%s\n",
-         type_.c_str(), id_.c_str(), frame_.c_str());
-  printf("----- ----- ----- pos_: [%f, %f, %f, %f, %f, %f]\n",
-         pos_[0], pos_[1], pos_[2], pos_[3], pos_[4], pos_[5]);
+  printf("----- ----- type: %s \t id: %s \t frame: %s\n", type_.c_str(), id_.c_str(), frame_.c_str());
+  printf("----- ----- ----- pos_: [%f, %f, %f, %f, %f, %f]\n", pos_[0], pos_[1], pos_[2], pos_[3], pos_[4], pos_[5]);
   printf("----- ----- ----- q: [%f, %f, %f, %f]\n",
          transform_sensor2base_.getRotation().x(), transform_sensor2base_.getRotation().y(),
          transform_sensor2base_.getRotation().z(), transform_sensor2base_.getRotation().w());
