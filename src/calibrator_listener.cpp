@@ -1,6 +1,7 @@
 #include "calibrator_listener/calibrator_listener.hpp"
 #include "calibrator_listener/calibrator_print.hpp"
 
+// 从json文件读取外参（用不到）
 bool CalibratorListener::read_extrinsic(const std::string& path){
   std::ifstream ifs(path, std::ios::in);
   nlohmann::json js_file;
@@ -47,21 +48,17 @@ bool CalibratorListener::read_extrinsic(const std::string& path){
 
 bool CalibratorListener::read_params(){
   bool flag_offline = nh_.getParam("offline", offline_);
-  bool flag_mode = nh_.getParam("mode", mode_);
   bool flag_service = nh_.getParam("service_name", extrinsic_service_name_);
-  bool flag_extrinsic_filepath = nh_.getParam("extrinsic_file", extrinsic_filepath_);
   bool flag_nav_filepath = nh_.getParam("nav_param_file", nav_filepath_);
   bool flag_output_filepath = nh_.getParam("output_file", output_filepath_);
   bool flag_tf_freq = nh_.getParam("tf_frequency", tf_freq_);
 
-  if (!flag_offline || !flag_mode || !flag_service || !flag_extrinsic_filepath || !flag_nav_filepath || !flag_output_filepath || !flag_tf_freq){
-    ROS_ERROR("offline_ || mode_ || extrinsic_service_name_ || extrinsic_filepath_ || nav_filepath_ || output_filepath_ || tf_freq_ read FAILURE\n");
+  if (!flag_offline || !flag_service || !flag_nav_filepath || !flag_output_filepath || !flag_tf_freq){
+    ROS_ERROR("offline_ || extrinsic_service_name_ || nav_filepath_ || output_filepath_ || tf_freq_ read FAILURE\n");
     return false;
   } else {
     debug_printf("----- CalibratorListener::readParams() ..... offline_ = %d\n", offline_);
-    debug_printf("----- CalibratorListener::readParams() ..... mode_ = %d\n", mode_);
     debug_printf("----- CalibratorListener::readParams() ..... extrinsic_service_name_ = %s\n", extrinsic_service_name_.c_str());
-    debug_printf("----- CalibratorListener::readParams() ..... extrinsic_filepath_ = %s\n", extrinsic_filepath_.c_str());
     debug_printf("----- CalibratorListener::readParams() ..... nav_filepath_ = %s\n", nav_filepath_.c_str());
     debug_printf("----- CalibratorListener::readParams() ..... output_filepath_ = %s\n", output_filepath_.c_str());
     debug_printf("----- CalibratorListener::readParams() ..... tf_freq_ = %f\n", tf_freq_);
@@ -99,7 +96,9 @@ void CalibratorListener::tf_static_callback(const tf2_msgs::TFMessage& msg) {
 
 
 bool CalibratorListener::extrinsic_callback(robot_basic_tools::Extrinsic::Request& req, robot_basic_tools::Extrinsic::Response& res) {
-  debug_printf("\n----- CalibratorListener::extrinsic_callback() ..... calling\n");
+  debug_printf("\n*************************************************************************************************\n\n");
+  debug_printf("----- Received service request from Robot Basic Tools\n");
+//  debug_printf("----- CalibratorListener::extrinsic_callback() ..... calling\n");
 
   parent_true_ = req.tfs.header.frame_id;
   child_true_ = req.tfs.child_frame_id;
@@ -113,8 +112,8 @@ bool CalibratorListener::extrinsic_callback(robot_basic_tools::Extrinsic::Reques
   } else {
     child_true_naked_ = child_true_;
   }
-  debug_printf("----- CalibratorListener::extrinsic_callback() ..... parent_true_ = %s \t child_true_ = %s\n", parent_true_.c_str(), child_true_.c_str());
-  debug_printf("----- CalibratorListener::extrinsic_callback() ..... parent_true_naked_ = %s \t child_true_naked_ = %s\n", parent_true_naked_.c_str(), child_true_naked_.c_str());
+  debug_printf("----- ----- Received parent_true_           = %s \t child_true_           = %s\n", parent_true_.c_str(), child_true_.c_str());
+  debug_printf("----- ----- Received parent_true_naked_     = %s \t child_true_naked_     = %s\n", parent_true_naked_.c_str(), child_true_naked_.c_str());
 
   parent_selected_ = req.parent_selected;
   child_selected_ = req.child_selected;
@@ -128,8 +127,8 @@ bool CalibratorListener::extrinsic_callback(robot_basic_tools::Extrinsic::Reques
   } else {
     child_selected_naked_ = child_selected_;
   }
-  debug_printf("----- CalibratorListener::extrinsic_callback() ..... parent_selected_ = %s \t child_selected_ = %s\n", parent_selected_.c_str(), child_selected_.c_str());
-  debug_printf("----- CalibratorListener::extrinsic_callback() ..... parent_selected_naked_ = %s \t child_selected_naked_ = %s\n", parent_selected_naked_.c_str(), child_selected_naked_.c_str());
+  debug_printf("----- ----- Received parent_selected_       = %s \t child_selected_       = %s\n", parent_selected_.c_str(), child_selected_.c_str());
+  debug_printf("----- ----- Received parent_selected_naked_ = %s \t child_selected_naked_ = %s\n", parent_selected_naked_.c_str(), child_selected_naked_.c_str());
 
   tf::StampedTransform tmp_stf;
   tf::transformStampedMsgToTF(req.tfs, tmp_stf);
@@ -137,10 +136,10 @@ bool CalibratorListener::extrinsic_callback(robot_basic_tools::Extrinsic::Reques
 
   double r, p, y;
   tf::Matrix3x3(transform_pt2ct_.getRotation()).getRPY(r, p, y);
-  debug_printf("----- CalibratorListener::extrinsic_callback() ..... transform_pt2ct_.q: [%f, %f, %f, %f]\n",
+  debug_printf("----- ----- Received extrinsic: rpy [deg] = [%.2f, %.2f, %.2f]\n", r * 180 / M_PI , p * 180 / M_PI, y *  180 / M_PI);
+  debug_printf("----- ----- Received extrinsic:   q [rad] = [%.3f, %.3f, %.3f, %.3f]\n",
                transform_pt2ct_.getRotation().x(), transform_pt2ct_.getRotation().y(), transform_pt2ct_.getRotation().z(), transform_pt2ct_.getRotation().w());
-  debug_printf("----- CalibratorListener::extrinsic_callback() ..... roll = %f, pitch = %f, yaw = %f\n", r, p, y);
-  debug_printf("----- CalibratorListener::extrinsic_callback() ..... transform_pt2ct_.t: [%f, %f, %f]\n",
+  debug_printf("----- ----- Received extrinsic:   t [ m ] = [%.3f, %.3f, %.3f]\n",
                transform_pt2ct_.getOrigin().x(), transform_pt2ct_.getOrigin().y(), transform_pt2ct_.getOrigin().z());
 
   if (!update_nav_params()) {
@@ -157,7 +156,8 @@ bool CalibratorListener::extrinsic_callback(robot_basic_tools::Extrinsic::Reques
 }
 
 bool CalibratorListener::update_nav_params() {
-  debug_printf("----- CalibratorListener::update_nav_params() ..... start updating nav params\n");
+//  debug_printf("\n----- CalibratorListener::update_nav_params() ..... calling\n");
+  debug_printf("\n----- Updating nav_params_\n");
 
   bool found_cs2base = false;
   for (const auto& iter : nav_params_) {
@@ -173,7 +173,7 @@ bool CalibratorListener::update_nav_params() {
   }
 
   if (std::strcmp(parent_true_naked_.c_str(), parent_selected_naked_.c_str()) != 0) {
-    debug_printf("----- CalibratorListener::update_nav_params() ..... Looking for intermediate transform from %s to %s\n", parent_selected_naked_.c_str(), parent_true_naked_.c_str());
+    debug_printf("----- ----- Looking for intermediate transform from %s to %s\n", parent_selected_naked_.c_str(), parent_true_naked_.c_str());
     tf2_ros::Buffer tmp_buff;
     tf2_ros::TransformListener tfl(tmp_buff);
     tf::StampedTransform tmp_stf;
@@ -198,7 +198,7 @@ bool CalibratorListener::update_nav_params() {
   }
 
   if (std::strcmp(child_true_naked_.c_str(), child_selected_naked_.c_str()) != 0) {
-    debug_printf("----- CalibratorListener::update_nav_params() ..... Looking for intermediate transform from %s to %s\n", child_true_naked_.c_str(), child_selected_naked_.c_str());
+    debug_printf("----- ----- Looking for intermediate transform from %s to %s\n", child_true_naked_.c_str(), child_selected_naked_.c_str());
     tf2_ros::Buffer tmp_buff;
     tf2_ros::TransformListener tfl(tmp_buff);
     tf::StampedTransform tmp_stf;
@@ -225,22 +225,23 @@ bool CalibratorListener::update_nav_params() {
   tf::Transform transform_ct2base = transform_cs2base_ * transform_ct2cs_.inverse();
   tf::Transform transform_pt2base = transform_ct2base * transform_pt2ct_;
   transform_ps2base_ = transform_pt2base * transform_ps2pt_.inverse();
-  debug_printf("----- CalibratorListener::update_nav_params() ..... calculated Transform as below ----- -----\n");
-  debug_printf("q: [%f, %f, %f, %f]\n", transform_ps2base_.getRotation().x(), transform_ps2base_.getRotation().y(), transform_ps2base_.getRotation().z(), transform_ps2base_.getRotation().w());
-  debug_printf("t: [%f, %f, %f]\n", transform_ps2base_.getOrigin().x(), transform_ps2base_.getOrigin().y(), transform_ps2base_.getOrigin().z());
+  debug_printf("----- ----- calculated Transform from [%s] to [base_link] :\n", parent_selected_naked_.c_str());
+  debug_printf("----- ----- q: [%f, %f, %f, %f]\n", transform_ps2base_.getRotation().x(), transform_ps2base_.getRotation().y(), transform_ps2base_.getRotation().z(), transform_ps2base_.getRotation().w());
+  debug_printf("----- ----- t: [%f, %f, %f]\n", transform_ps2base_.getOrigin().x(), transform_ps2base_.getOrigin().y(), transform_ps2base_.getOrigin().z());
 
+  debug_printf("----- ----- updated nav_params_ for [%s]\n", parent_selected_naked_.c_str());
   bool found_ps2base = false;
   for (auto& iter : nav_params_) {
     if (std::strcmp(iter.frame_.c_str(), parent_selected_naked_.c_str()) == 0) {
       found_ps2base = true;
       iter.update_pos(transform_ps2base_);
+      iter.print_sensor();
       break;
     }
   }
   if (!found_ps2base) {
     ROS_INFO("Unable to find parent selected (%s) in navigation platform parameters", parent_selected_.c_str());
     return false;
-//    Sensor current_sensor(current_type, current_id, current_frame_id, {current_rx, current_ry, current_rz, current_tx, current_ty, current_tz});
   }
 
   return true;
@@ -251,16 +252,16 @@ bool CalibratorListener::read_nav_params() {
   std::ifstream ifs(nav_filepath_, std::ios::in);
 
   if (ifs.is_open()) {
-    ROS_INFO("----- CalibratorListener::read_nav_params() ..... Loading nav_params from file success");
+    ROS_INFO("CalibratorListener::read_nav_params() ..... Loading .json success");
     ifs >> js_input_whole_;
     ifs.close();
   } else {
-    ROS_ERROR("----- CalibratorListener::read_nav_params() ..... Failed loading nav_params");
+    ROS_ERROR("CalibratorListener::read_nav_params() ..... Failed loading .json");
     return false;
   }
 
   if (!js_input_whole_.contains("sensorsettings")) {
-    ROS_ERROR("----- CalibratorListener::read_nav_params() ..... Possibly wrong json file for nav params, no sensorsettings");
+    ROS_ERROR("CalibratorListener::read_nav_params() ..... Cannot find sensorsettings, please check input .json file");
     return false;
   }
 
@@ -293,7 +294,7 @@ bool CalibratorListener::read_nav_params() {
     nav_params_.push_back(current_sensor);
   }
 
-  debug_printf("----- CalibratorListener::read_nav_params() ..... Loaded sensor list length = %lu\n", nav_params_.size());
+  debug_printf("----- CalibratorListener::read_nav_params() ..... Total %lu senors\n", nav_params_.size());
   for (const auto& item : nav_params_) {
     item.print_sensor();
   }
@@ -312,7 +313,11 @@ bool CalibratorListener::read_nav_params() {
 
 
 bool CalibratorListener::write_nav_params() {
-  debug_printf("----- CalibratorListener::write_nav_params() ..... calling\n");
+//  debug_printf("\n----- CalibratorListener::write_nav_params() ..... calling\n");
+  debug_printf("\n----- Writing updated nav_params to .json\n");
+
+  js_nav_.clear();
+  js_output_whole_.clear();
 
   for (const auto& data : nav_params_) {
     nlohmann::json js_pos;
@@ -321,7 +326,7 @@ bool CalibratorListener::write_nav_params() {
 //    js_pos["rz"] = data.pos_[2];
 //    js_pos["tx"] = data.pos_[3];
 //    js_pos["ty"] = data.pos_[4];
-    js_pos["tz"] = data.pos_[5];
+//    js_pos["tz"] = data.pos_[5];
     js_pos["rx"] = round(data.pos_[0] * 1000) / 1000;
     js_pos["ry"] = round(data.pos_[1] * 1000) / 1000;
     js_pos["rz"] = round(data.pos_[2] * 1000) / 1000;
@@ -341,23 +346,22 @@ bool CalibratorListener::write_nav_params() {
   js_output_whole_["robotsettings"] = js_robot_;
   js_output_whole_["sensorsettings"] = js_nav_;
 
-  std::ofstream ofs(output_filepath_, std::ios::out);
+  std::ofstream ofs(output_filepath_, std::ios::trunc);
   if (ofs.is_open()) {
-    ROS_INFO("----- CalibratorListener::write_nav_params() ..... Saving data to %s", output_filepath_.c_str());
+    ROS_INFO("Saving data to %s", output_filepath_.c_str());
     ofs << std::setw(4) << js_output_whole_ << std::endl;
     ofs.close();
     return true;
   } else {
-    ROS_ERROR("----- CalibratorListener::write_nav_params() ..... Cannot create a file at %s", output_filepath_.c_str());
+    ROS_ERROR("Cannot create file %s", output_filepath_.c_str());
     return false;
   }
 }
 
-
+// 发布读取到的 和 更新后的 变换到/tf - 用不到
 void CalibratorListener::broadcast_tf() {
   ros::Rate rate(tf_freq_);
   while (nh_.ok()){
-//    debug_printf("----- CalibratorListener::broadcast_tf() ..... broadcasting\n");
     for (const auto& iter : nav_params_) {
       geometry_msgs::TransformStamped msg;
       tf::transformStampedTFToMsg(tf::StampedTransform(iter.transform_sensor2base_, ros::Time::now(), "/base_link", "/" + iter.frame_), msg);
@@ -371,35 +375,32 @@ void CalibratorListener::broadcast_tf() {
 
 void CalibratorListener::run() {
 
+  debug_printf("\n*************************************************************************************************\n\n");
+
   if(!read_params()) {
     ROS_ERROR("Failed reading from parameter centre");
     exit(1);
   }
-  debug_printf("\n");
+  debug_printf("\n*************************************************************************************************\n\n");
 
   if (!read_nav_params()) {
     ROS_ERROR("Failed reading navigation platform parameters");
     exit(1);
   }
-  debug_printf("\n");
+
+  debug_printf("\n*************************************************************************************************\n\n");
 
   tf_static_sub_ = nh_.subscribe("/tf_static", 1, &CalibratorListener::tf_static_callback, this);
-  debug_printf("\n");
-
 //  br_thread_ = std::thread(&CalibratorListener::broadcast_tf, this);
 
-  if (mode_ == 0) {
-    debug_printf("----- CalibratorListener::run() ..... MODE 0: Expecting extrinsic from service\n");
-    ros::ServiceServer service = nh_.advertiseService(extrinsic_service_name_, &CalibratorListener::extrinsic_callback, this);
-    ROS_INFO("Server ready. Waiting for extrinsic service request ......");
-    ros::spin();
-  } else if (mode_ == 1) {
-    debug_printf("----- CalibratorListener::run() ..... MODE 1: Read extrinsic from file\n");
-    if (!read_extrinsic(extrinsic_filepath_)) {
-      ROS_ERROR("Failed reading extrinsic file");
-      exit(1);
-    }
-  }
+  ros::ServiceServer service = nh_.advertiseService(extrinsic_service_name_, &CalibratorListener::extrinsic_callback, this);
+  ROS_INFO("Server ready. Waiting for extrinsic service request ......");
+  ros::spin();
+
+//    if (!read_extrinsic(extrinsic_filepath_)) {
+//      ROS_ERROR("Failed reading extrinsic file");
+//      exit(1);
+//    }
 }
 
 // ---------------------------------------------------------------------------------------------------------------------

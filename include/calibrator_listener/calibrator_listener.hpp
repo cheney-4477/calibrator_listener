@@ -7,6 +7,7 @@
 #include <mutex>
 #include <regex>
 #include <map>
+#include <cmath>
 
 #include <ros/ros.h>
 #include <geometry_msgs/TransformStamped.h>
@@ -41,11 +42,9 @@ class CalibratorListener {
   bool extrinsic_callback(robot_basic_tools::Extrinsic::Request& req, robot_basic_tools::Extrinsic::Response& res);
 
  private:
-  int mode_;
   bool offline_;
   double tf_freq_;
   std::string extrinsic_service_name_;
-  std::string extrinsic_filepath_;
   std::string nav_filepath_;
   std::string output_filepath_;
 
