@@ -1,0 +1,169 @@
+{
+    "robotsettings": {
+        "robotshape": {
+            "selected": "polygon",
+            "cornercoordinate": [
+                {
+                    "x": 0.261,
+                    "y": 0.161
+                },
+                {
+                    "x": 0.171,
+                    "y": 0.25
+                },
+                {
+                    "x": -0.171,
+                    "y": 0.26
+                },
+                {
+                    "x": -0.261,
+                    "y": 0.161
+                },
+                {
+                    "x": -0.261,
+                    "y": -0.161
+                },
+                {
+                    "x": -0.171,
+                    "y": -0.26
+                },
+                {
+                    "x": 0.171,
+                    "y": -0.25
+                },
+                {
+                    "x": 0.261,
+                    "y": -0.161
+                }
+            ]
+        },
+        "robotwheel": {
+            "wheelgauge": 0.386,
+            "wheeldiameter": 0.169
+        },
+        "robotspeed": {
+            "maxlinarspeed": 0.6
+        },
+        "bypassobstacle": {
+            "bypassobstacleduration": 10,
+            "bypassobstacledistance": 2.5
+        },
+        "laser": {
+            "lasermaxangle": 1.85,
+            "laserminangle": -1.85,
+            "laserplacement": {
+                "selected": "downside"
+            }
+        }
+    },
+    "sensorsettings": [
+        {
+            "type": "laser",
+            "id": 0,
+            "pos": {
+                "rx": 0,
+                "ry": 0,
+                "rz": 0,
+                "tx": 0.1604,
+                "ty": 0,
+                "tz": 0.19711
+            }
+        },
+        {
+            "type": "ultrasonic",
+            "id": 0,
+            "pos": {
+                "rx": 0,
+                "ry": 0,
+                "rz": 0,
+                "tx": 0,
+                "ty": 0,
+                "tz": 0
+            }
+        },
+        {
+            "type": "camera",
+            "id": "right",
+            "pos": {
+                "rx": 0.0,
+                "ry": 0.0,
+                "rz": 0.0,
+                "tx": 3.0,
+                "ty": 0.0,
+                "tz": 0.0
+            }
+        },
+        {
+            "type": "camera",
+            "id": "left",
+            "pos": {
+                "rx": 0.0,
+                "ry": 0.0,
+                "rz": 0.0,
+                "tx": 1.0,
+                "ty": 0.0,
+                "tz": 0.0
+            }
+        },
+        {
+            "type": "infrared",
+            "id": 0,
+            "pos": {
+                "rx": 0,
+                "ry": 0,
+                "rz": 0,
+                "tx": 0,
+                "ty": 0,
+                "tz": 0
+            }
+        },
+        {
+            "type": "antidrop",
+            "id": 0,
+            "pos": {
+                "rx": 0,
+                "ry": 0,
+                "rz": 0,
+                "tx": 0,
+                "ty": 0,
+                "tz": 0
+            }
+        },
+        {
+            "type": "impact",
+            "id": 0,
+            "pos": {
+                "rx": 0,
+                "ry": 0,
+                "rz": 0,
+                "tx": 0,
+                "ty": 0,
+                "tz": 0
+            }
+        },
+	{
+            "type": "camera",
+            "id": 0,
+            "pos": {
+                "rx": 0,
+                "ry": 0,
+                "rz": 0,
+                "tx": 0,
+                "ty": 0,
+                "tz": 0
+            }
+        },
+	{
+            "type": "camera",
+            "id": "ldlidar",
+            "pos": {
+                "rx": 0,
+                "ry": 0,
+                "rz": 0,
+                "tx": 0,
+                "ty": 0,
+                "tz": 0
+            }
+        }
+    ]
+}
