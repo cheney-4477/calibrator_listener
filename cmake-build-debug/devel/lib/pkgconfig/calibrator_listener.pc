@@ -1,8 +1,0 @@
-prefix=/home/momo/workspace/rbt_ws/src/calibrator_listener/cmake-build-debug/devel
-
-Name: calibrator_listener
-Description: Description of calibrator_listener
-Version: 0.0.0
-Cflags: 
-Libs: -L${prefix}/lib 
-Requires: 
